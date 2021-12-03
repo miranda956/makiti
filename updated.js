@@ -4,15 +4,17 @@ const rs= require("randomstring")
 const users =require("./user.json");
 const https = require('https');
 const shops =require("./shop.json");
-const products =require("./products");
+const products =require("./products.json");
+const cats=require("./cats.json");
 const  fs =require("fs");
+let nodeGeocoder = require('node-geocoder');
+
    var data = { ...(
     JSON.parse(
         // @ts-ignore
         fs.readFileSync(__dirname + "/user.json")
     )
 ) }; 
-let nodeGeocoder = require('node-geocoder');
 
 
 const thinky = require('thinky')({
@@ -160,6 +162,29 @@ selectedshopsVal.push(newShop);
 
 }
 
+
+for (cat in cats){
+let newCat ={
+    name:cats[cat].title_meta_tag,
+    description:cats[cat].description,
+    keyword:cats[cat].keywords,
+    rank:cats[cat].category_order,
+    image:cats[cat].image,
+    props:{},
+
+
+    "old-slug":cats[cat].slug,
+    "old-mage-for-mobile-app":cats[cat].image_for_mobile_app
+
+
+
+
+
+}
+
+
+
+}
 let productaudio = {
     "is-img": false,
     key: rs.generate({length: 32, charset: "alphanumeric"}),
@@ -249,6 +274,8 @@ for (product in products){
     selectedproductVal.push(newProducts);
 
 }
+
+
 var r = thinky.r;
 var Users = thinky.createModel('users', {
       ccode: String,
@@ -320,8 +347,6 @@ var Products = thinky.createModel('Products',{
         id:String,
         key:String
 
-
-
     },
     "main-img":Number,
     cat:Number,
@@ -342,7 +367,22 @@ resolution:Number,
 })
 
 images.ensureIndex("createdAt")
+
+var category =thinky.createModel('cats',{
+    name:String,
+    description:String,
+    keywords:String,
+    image:String,
+    color:String,
+    rank:Number,
+    parent_id:Number,
+    props:Object
+})
+
+category.ensureIndex("createdAt")
+
 /*
+
 
 var files= thinky.createModel('files',{
 
