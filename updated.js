@@ -12,7 +12,7 @@ const  fs =require("fs");
         fs.readFileSync(__dirname + "/user.json")
     )
 ) }; 
-
+let nodeGeocoder = require('node-geocoder');
 
 
 const thinky = require('thinky')({
@@ -22,6 +22,14 @@ const thinky = require('thinky')({
 });
 
 let selectedUserVal = [];
+
+
+function checkprofile(){
+// function to check presence of avator 
+
+
+}
+
 
 for(let user in users) {
     let newUser = {
@@ -41,7 +49,27 @@ for(let user in users) {
         "has-profile":false,// function needed to check presence of avatar,picture,cover_avator before setting false
         "has-cover":false,
         "has-audio":false,// false by default 
-        "old_user_id": sers[user].user_id,// do the same for all the remaining unaffected data
+        "old_user_id": users[user].user_id,// do the same for all the remaining unaffected data
+        "old_number_of_sales":users[user].number_of_sales,
+        "old_facebook_id":users[user].facebook_id,
+        "old_google_id":users[user].google_id,
+        "old_twitter_id":users[user].twitter_id,
+        "old_slug":users[user].slug,
+        "old_about_me":users[user].about_me,
+        "old_coords_lat":users[user].coords_lat,
+        "old_coords_lang":users[user].coords.lang,
+        "old_facebook_url":users[user].facebook_url,
+        "old_twitter_url":users[user].twitter_url,
+        "old_instagram_url":users[user].instagram_url,
+        "old_pininterest_url":users[user].pinterest_url,
+        "old__linkedin_url":users[user].linkedin_url,
+        "old_youtube_url":users[user].youtube_url,
+        "old-status":users[user].user_status,
+        "old-city_id":users[user].city_id,
+        "old-country-id":users[user].country_id,
+        "old-state-id":users[user].state_id
+
+
 
     }
     selectedUserVal.push(newUser);
@@ -103,16 +131,26 @@ let newShop ={
     name:shops[ishop].name,
     description:shops[ishop].description,
     address:shops[ishop].address,
-    cat:9,
-    views:[],
-    followers:[],
+    owner:shops[ishop].user_id,
+    admin:"",
+    cat:shops[ishop].cat,
+    ccode:"224",
+    phone:shops[ishop].phone_number,
+    email:shops[ishop].email,
+    location:"",
+    // function needed to get location from longitutes and latitudes
     note:0,
     notes:{},
-    "notes-hist":[],
     "has-logo":shops[ishop].logo,
     "has-cover":false,
     "has-audio":false,
-    "old-id":shops[ishop].user.id
+    "old-id":shops[ishop].user.id,
+    "old-slug":shops[ishop].slug,
+    "logo-key":"",
+    "old-shop-status":shops[ishop].shop_status,
+    "old-coords_lat":shops[ishop].coords_lat,
+    "old-coords-lng":shops[ishop].coords_lng
+
 
 
 
@@ -135,21 +173,20 @@ let productaudio = {
 };
 
 // function to get address from longitude and latitude coord
-function getReverseGeocodingData(lat, lng) {
-    var latlng = new google.maps.LatLng(lat, lng);
-    // This is making the Geocode request
-    var geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ 'latLng': latlng },  (results, status) =>{
-        if (status !== google.maps.GeocoderStatus.OK) {
-            alert(status);
-        }
-        // This is checking to see if the Geoeode Status is OK before proceeding
-        if (status == google.maps.GeocoderStatus.OK) {
-            console.log(results);
-            var address = (results[0].formatted_address);
-        }
-    });
-}
+// reverse geolocation
+ 
+let options = {
+  provider: 'openstreetmap'
+};
+ 
+let geoCoder = nodeGeocoder(options);// Reverse Geocode
+  geoCoder.reverse({lat:38.66, lng:-78.43})
+  .then((res)=> {
+    console.log(res);
+  })
+  .catch((err)=> {
+    console.log(err);
+  });
 // validate longitude and latitude 
 
 function validateLatLng(lat, lng) {    
@@ -189,7 +226,20 @@ for (product in products){
         plan:"basic",
         "last-touch":"",
         location:"",
-         audios:""
+        // function to get location from lng and ltd coordinates 
+         audios:"",
+         "old-posted-date":products[product].posted_on,
+         "old-status":products[product].products_status,
+         "old-subcategory":products[product].sub_category,
+         "old-slug":products[product].slug,
+         "old-voice-signature":products[product].use_shop_voice_signature,
+         "old-coords-lat":products[product].coords_lat,
+         "old-coords-lng":products[product].coords_lng,
+         "old-subcat":products[product].sub_category,
+         "old-person-of-contact":products[product].person_of_contact_id,
+         "old-city":products[product].city_id,
+         "old-state-id":products[product].state_id,
+         "old-user-id":products[product].user_id
 
         
 
