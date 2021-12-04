@@ -7,6 +7,7 @@ const shops =require("./shop.json");
 const products =require("./products.json");
 const cats=require("./cats.json");
 const  fs =require("fs");
+const images=require("./images.json");
 let nodeGeocoder = require('node-geocoder');
 
    var data = { ...(
@@ -26,14 +27,33 @@ const thinky = require('thinky')({
 let selectedUserVal = [];
 
 
-function checkprofile(){
-// function to check presence of avator 
 
-
-}
 
 
 for(let user in users) {
+
+    let new_user_profile = false;
+    let new_user_cover = false;
+    let profile_url =""
+
+    if (users[user].avatar) {
+        new_user_profile = true;
+        profile_url =users[user].avatar
+    } else if (users[user].picture) {
+        new_user_profile = true;
+        profile_url =users[user].picture      
+    } else {
+        new_user_profile = false;
+    }
+
+    if (users[user].cover) {
+        new_user_cover = true;
+        cover_url =users[user].cover    
+    } else {
+        new_user_cover = false;
+    }
+    
+
     let newUser = {
         email: users[user].email,
         phone: users[user].phone_number,
@@ -48,8 +68,10 @@ for(let user in users) {
         "phone-vcode":"null",
         "pending-email":"null",
         "email-vcode":"null",
-        "has-profile":false,// function needed to check presence of avatar,picture,cover_avator before setting false
-        "has-cover":false,
+        "has-profile":new_user_profile,
+        "has-cover":new_user_cover,
+        "profile_url":profile_url,
+        "cover_url":cover_url,
         "has-audio":false,// false by default 
         "old_user_id": users[user].user_id,// do the same for all the remaining unaffected data
         "old_number_of_sales":users[user].number_of_sales,
@@ -70,14 +92,13 @@ for(let user in users) {
         "old-city_id":users[user].city_id,
         "old-country-id":users[user].country_id,
         "old-state-id":users[user].state_id
-
-
-
     }
     selectedUserVal.push(newUser);
     // console.log(newUser);
 }
 // @ts-ignore
+
+
 
 let selectedMarketVal=[];
 
@@ -99,35 +120,26 @@ for ( let market in users){
 let selectedfilesVal=[];
 
 
-for (let file in users){
 
-    let files={
-        "is-img": true,
-        key: rs.generate({length: 32, charset: "alphanumeric"}),
-        type:"'image' / 'text' / 'misc'",
-
-
-        requirements: {
-			"max-size": 15728640,
-			"min-size": 0,
-			types: ["webp","jpeg","jpg","png","gif"],
-			"max-height": 4320,
-			"max-width": 7680,
-			"min-height": 512,
-			"min-width": 512
-		},
-        resolution: 512,
-
-    }
-    selectedfilesVal.push(files);
-
-}
 
 console.log(selectedfilesVal)
 
 let selectedshopsVal=[];
 
 for (let ishop in shops){
+
+    let options = {
+        provider: 'openstreetmap'
+      };
+       
+      let geoCoder = nodeGeocoder(options);// Reverse Geocode
+        geoCoder.reverse({lat:shops[ishop].coords_lat, lng:shops[ishop].coords_lng})
+        .then((locations)=> {
+          console.log(locations);
+        })
+        .catch((err)=> {
+          console.log(err);
+        });
 
 let newShop ={
     name:shops[ishop].name,
@@ -163,7 +175,10 @@ selectedshopsVal.push(newShop);
 }
 
 
-for (cat in cats){
+let selectedcatsVal=[];
+
+for ( let cat in cats){
+
 let newCat ={
     name:cats[cat].title_meta_tag,
     description:cats[cat].description,
@@ -171,48 +186,20 @@ let newCat ={
     rank:cats[cat].category_order,
     image:cats[cat].image,
     props:{},
-
-
     "old-slug":cats[cat].slug,
     "old-mage-for-mobile-app":cats[cat].image_for_mobile_app
 
+}
 
-
+selectedcatsVal.push(newCat);
 
 
 }
 
 
-
-}
-let productaudio = {
-    "is-img": false,
-    key: rs.generate({length: 32, charset: "alphanumeric"}),
-    status: "unsent",
-    requirements: {
-        "max-size": 15728640,
-        "min-size": 0,
-        types: ["aac","bin","mid","midi","mp3","oga","ogx","opus","wav","weba"]
-    },
-    "old-a-shop": user.id
-};
 
 // function to get address from longitude and latitude coord
 // reverse geolocation
- 
-let options = {
-  provider: 'openstreetmap'
-};
- 
-let geoCoder = nodeGeocoder(options);// Reverse Geocode
-  geoCoder.reverse({lat:38.66, lng:-78.43})
-  .then((res)=> {
-    console.log(res);
-  })
-  .catch((err)=> {
-    console.log(err);
-  });
-// validate longitude and latitude 
 
 function validateLatLng(lat, lng) {    
     let pattern = new RegExp('^-?([1-8]?[1-9]|[1-9]0)\\.{1}\\d{1,6}');
@@ -222,22 +209,7 @@ function validateLatLng(lat, lng) {
 
   //Convert lat/long to gps coordinates for location 
 
-function ConvertDEGToDMS(deg, lat) {
-    var absolute = Math.abs(deg);
 
-    var degrees = Math.floor(absolute);
-    var minutesNotTruncated = (absolute - degrees) * 60;
-    var minutes = Math.floor(minutesNotTruncated);
-    var seconds = ((minutesNotTruncated - minutes) * 60).toFixed(2);
-
-    if (lat) {
-        var direction = deg >= 0 ? "N" : "S";
-    } else {
-        var direction = deg >= 0 ? "E" : "W";
-    }
-
-    return degrees + "°" + minutes + "'" + seconds + "\"" + direction;
-}
 let selectedproductVal =[];
 
 for (product in products){
@@ -249,7 +221,7 @@ for (product in products){
         negotiable:products[product].negociable,
         cat:products[product].category,
         plan:"basic",
-        "last-touch":"",
+        "last-touch":"null",
         location:"",
         // function to get location from lng and ltd coordinates 
          audios:"",
@@ -292,7 +264,6 @@ var Users = thinky.createModel('users', {
       "has-cover":Boolean,
 
 });
-Users.ensureIndex("createdAt")
 
 var Shop =thinky.createModel('Shop',{
     name:String,
@@ -322,7 +293,6 @@ var Shop =thinky.createModel('Shop',{
     "logo-key":String,
 
 })
-shop.ensureIndex("createdAt")
 
 var Products = thinky.createModel('Products',{
     owner:String,
@@ -332,8 +302,8 @@ var Products = thinky.createModel('Products',{
     plan:String,
     address:String,
     price:Number,
-    negotiable:BOOLEAN,
-    unused:BOOLEAN,
+    negotiable:Boolean,
+    unused:Boolean,
     "last-touch":Date,
     comments:String,
     location:{
@@ -356,7 +326,6 @@ var Products = thinky.createModel('Products',{
 
 
 })
-products.ensureIndex("createdAt")
 
 var images = thinky.createModel('Images',{
 images_storage_id:Number,
@@ -366,7 +335,6 @@ resolution:Number,
 
 })
 
-images.ensureIndex("createdAt")
 
 var category =thinky.createModel('cats',{
     name:String,
@@ -379,9 +347,7 @@ var category =thinky.createModel('cats',{
     props:Object
 })
 
-category.ensureIndex("createdAt")
 
-/*
 
 
 var files= thinky.createModel('files',{
@@ -405,7 +371,6 @@ requirements:[{
 
 }]
 });
-files.ensureIndex("createdAt")
 
 var marketUsers =thinky.createModel('marketUsers',{
 
@@ -420,12 +385,12 @@ status:String.default("normal")
 })
 
 
-makitiusers.ensureIndex("createdAt")
 products.belongsTo(users,"users","iduser","id")
 files.belongsTo(users, "users" ,"iduser", "id");
 marketUsers.belongsTo(users, "users" ,"iduser", "id")
 images.belongsTo(products,"products","productid","id")
-*/
+shops.belongsTo(users,"users","iduser","id")
+
 
 
 r.connect( {host: 'localhost', port:  28015 }, function(err, conn) {
@@ -448,7 +413,11 @@ r.db('makitidb').table('users').
         if (err) throw err;
         console.log(JSON.stringify(result, null, 2));
     }); 
-
+r.db('makitidb').table('cats').
+    insert(selectedcatsVal).run(conn, function(err, result) {
+        if (err) throw err;
+        console.log(JSON.stringify(result, null, 2));
+    }); 
 
 
     r.db('makiti-market').table('users').
