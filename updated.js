@@ -12,13 +12,14 @@ const cities =require("./cities.json");
 const  fs =require("fs");
 const images=require("./images.json");
 let nodeGeocoder = require('node-geocoder');
+const admins =require("./shopadmin.json")
 
    var data = { ...(
     JSON.parse(
         // @ts-ignore
         fs.readFileSync(__dirname + "/user.json")
     )
-) }; 
+) };
 
 
 let selectedUserVal = [];
@@ -39,18 +40,18 @@ for(let user in users) {
         profile_url =users[user].avatar
     } else if (users[user].picture) {
         new_user_profile = true;
-        profile_url =users[user].picture      
+        profile_url =users[user].picture
     } else {
         new_user_profile = false;
     }
 
     if (users[user].cover) {
         new_user_cover = true;
-        cover_url =users[user].cover    
+        cover_url =users[user].cover
     } else {
         new_user_cover = false;
     }
-    
+
 
     let newUser = {
         email: users[user].email,
@@ -70,7 +71,7 @@ for(let user in users) {
         "has-cover":new_user_cover,
         "profile_url":profile_url,
         "cover_url":cover_url,
-        "has-audio":false,// false by default 
+        "has-audio":false,// false by default
         "old_data":{
         "user_id": users[user].user_id,
          "email-status":users[user].email_status,
@@ -124,16 +125,28 @@ let selectedfilesVal=[];
 
 
 
-console.log(selectedfilesVal)
+let selectedshopsVal=[]
+
+for (let admin in admins){
+
+    let shopadmin={
+        admins:admins[admin].users_id
+
+
+    }
+    selectadminVal.push(shopadmin)
+}
 
 let selectedshopsVal=[];
+
+
 
 for (let ishop in shops){
 
     let options = {
         provider: 'openstreetmap'
       };
-       
+
       let geoCoder = nodeGeocoder(options);// Reverse Geocode
         geoCoder.reverse({lat:shops[ishop].coords_lat, lng:shops[ishop].coords_lng})
         .then((locations)=> {
@@ -143,13 +156,16 @@ for (let ishop in shops){
           console.log(err);
         });
 
+        let admn = selectedshopsVal.map(a => admins);
+
+
 let newShop ={
     name:shops[ishop].name,
-    created:"", 
+    created:new Date().getTime(),
     description:shops[ishop].description,
     address:shops[ishop].address,
     owner:shops[ishop].user_id,
-    admin:"",
+    admin:admn,
     cat:shops[ishop].cat,
     shop:shops[ishop].shop_id,
     ccode:"224",
@@ -157,23 +173,41 @@ let newShop ={
     phone:shops[ishop].phone_number,
     email:shops[ishop].email,
     status:"normal",
-    location:"",
-    // function needed to get location from longitutes and latitudes
+    location:"null",
+    audios:"",
+    "has-logo":"",
+    profile:"",
+    "has-cover":"",
+    cover:"",
+    "cover-key":"",
     note:0,
     notes:{},
+    followers:"",
+    following:"",
+    plan:"basic",
+    "shop-number":"",
+     city:"",
+     state:"",
+     country:""    
     "old-data":{
-        "has-logo":shops[ishop].logo,
-        "has-cover":false,
-        "has-audio":false,
-        "old-id":shops[ishop].user_id,
-        "old-slug":shops[ishop].slug,
-        "logo-key":"",
-        "old-shop-status":shops[ishop].shop_status,
-        "old-coords_lat":shops[ishop].coords_lat,
-        "old-coords-lng":shops[ishop].coords_lng
-    
+        "shop_id":shops[ishop].shop_id,
+        "name":shops[ishop].name,
+        "slug":shops[ishop].slug,
+        "description":shops[ishop].description,
+        "logo":shops[ishop].logo,
+        "cover_picture":shops[ishop].cover_picture,
+        "category":shops[ishop].category,
+        "phone_number":shops[ishop].phone_number,
+        "email":shops[ishop].email,
+        "audio":shops[ishop].audio,
+        "address":shops[ishop].address,
+        "id":shops[ishop].user_id,
+        "shop-status":shops[ishop].shop_status,
+        "coords_lat":shops[ishop].coords_lat,
+        "coords-lng":shops[ishop].coords_lng
+
     }
-    
+
 
 
 
@@ -184,6 +218,16 @@ selectedshopsVal.push(newShop);
 }
 
 
+let selectedimageVal=[]
+for(let img  in images){
+let newImage={
+    "main-image":images[img].ismain
+}
+
+selectedimageVal.push(newImage)
+
+
+}
 let selectedcatsVal=[];
 /*
 for ( let cat in cats){
@@ -211,13 +255,13 @@ selectedcatsVal.push(newCat);
 // function to get address from longitude and latitude coord
 // reverse geolocation
 
-function validateLatLng(lat, lng) {    
+function validateLatLng(lat, lng) {
     let pattern = new RegExp('^-?([1-8]?[1-9]|[1-9]0)\\.{1}\\d{1,6}');
-    
+
     return pattern.test(lat) && pattern.test(lng);
   }
 
-  //Convert lat/long to gps coordinates for location 
+  //Convert lat/long to gps coordinates for location
 
 let selectedcountryVal=[]
   for (let country in countries){
@@ -258,6 +302,9 @@ let selectedcitiesVal=[]
 let selectedproductVal =[];
 
 for (let product in products){
+ let result = selectedimageVal.map(a => a["main-image"]);
+
+
    let  dateTime = new Date();
     let newProducts={
         title:products[product].name,
@@ -273,29 +320,38 @@ for (let product in products){
         plan:"basic",
         "last-touch":dateTime,
         location:products[product].coords_name,
-        comments:"",
+        comments:[],
         images:"",
-        "main-img":"",
-        likes:"",
-        // function to get location from lng and ltd coordinates 
+        "main-img":result,
+        likes:[],
+        // function to get location from lng and ltd coordinates
          audios:"",
          "old-data":{
-            "old-posted-date":products[product].posted_on,
-            "old-status":products[product].products_status,
-            "old-subcategory":products[product].sub_category,
-            "old-slug":products[product].slug,
-            "old-voice-signature":products[product].use_shop_voice_signature,
-            "old-coords-lat":products[product].coords_lat,
-            "old-coords-lng":products[product].coords_lng,
-            "old-subcat":products[product].sub_category,
-            "old-person-of-contact":products[product].person_of_contact_id,
-            "old-city":products[product].city_id,
-            "old-state-id":products[product].state_id,
-            "old-user-id":products[product].user_id
-   
+            "product_id":products[product].product_id,
+            "name":products[product].name,
+            "slug":products[product].slug,
+            "description":products[product].description,
+            "negociable":products[product].negociable,
+            "audio_description":products[product].audio_description,
+            "category":products[product].category,
+            "sub_category":products[product].sub_category,
+            "type_of_article":products[product].type_of_article,
+            "posted-date":products[product].posted_on,
+            "status":products[product].products_status,
+            "subcategory":products[product].sub_category,
+            "slug":products[product].slug,
+            "voice-signature":products[product].use_shop_voice_signature,
+            "coords-lat":products[product].coords_lat,
+            "coords-lng":products[product].coords_lng,
+            "subcat":products[product].sub_category,
+            "person-of-contact":products[product].person_of_contact_id,
+            "city":products[product].city_id,
+            "state-id":products[product].state_id,
+            "user-id":products[product].user_id
+
          }
-         
-        
+
+
 
 
 
@@ -444,7 +500,7 @@ requirements:String
 /*
 var marketUsers =thinky.createModel('marketUsers',{
 
-    //audio 
+    //audio
 followers:String().default("[]"),
 following:String().default("[]"),
 likes:String().default("[]"),
@@ -471,29 +527,29 @@ r.connect( {host: 'localhost', port:  28015 }, function(err, conn) {
 r.db('makitidb').table('users').
     insert(selectedUserVal).run(conn, function(err, result) {
         if (err) throw err;
-        
+
     });
     r.db('makitidb').table('Shop').
     insert(selectedshopsVal).run(conn, function(err, result) {
         if (err) throw err;
-        
-    }); 
+
+    });
     r.db('makitidb').table('Products').
     insert(selectedproductVal).run(conn, function(err, result) {
         if (err) throw err;
-        
-    }); 
+
+    });
 r.db('makitidb').table('cats').
     insert(selectedcatsVal).run(conn, function(err, result) {
         if (err) throw err;
-        
-    }); 
+
+    });
 
 
     r.db('makiti-market').table('users').
     insert(selectedMarketVal).run(conn, function(err, result) {
         if (err) throw err;
-        
+
     });
     r.db('flystore').table('files').
     insert(selectedfilesVal).run(conn, function(err, result) {

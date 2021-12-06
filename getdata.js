@@ -1,11 +1,11 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-    user: 'postgres',
-    host: "mk-postgres1.cmgk6hqap8r5.eu-west-3.rds.amazonaws.com",
-    database: 'postgres',
-    password: "68RPteTBBZRQGT0h3Z791oEL0mHDYlot3IPX",
-    port: 5432,
+    user:process.env.user
+    host:process.env.host
+    database:process.env.database,
+    password: process.env.password
+    port: process.env.port
 })
 
 pool.on('error', (err, client) => {
@@ -14,7 +14,7 @@ pool.on('error', (err, client) => {
 
 const query = `
 SELECT *
-FROM products_products
+FROM interactions_interactions
 `;
 
 (async () => {
