@@ -5,7 +5,10 @@ const users =require("./user.json");
 const https = require('https');
 const shops =require("./shop.json");
 const products =require("./products.json");
-const cats=require("./cats.json");
+//const cats=require("./cats.json");
+const states =require("./states.json");
+const countries =require("./countries.json");
+const cities =require("./cities.json");
 const  fs =require("fs");
 const images=require("./images.json");
 let nodeGeocoder = require('node-geocoder');
@@ -18,12 +21,6 @@ let nodeGeocoder = require('node-geocoder');
 ) }; 
 
 
-const thinky = require('thinky')({
-    host:  'localhost',
-    port:  28015,
-    db:    'makitidb'
-});
-
 let selectedUserVal = [];
 
 
@@ -35,6 +32,7 @@ for(let user in users) {
     let new_user_profile = false;
     let new_user_cover = false;
     let profile_url =""
+    let cover_url=""
 
     if (users[user].avatar) {
         new_user_profile = true;
@@ -73,25 +71,45 @@ for(let user in users) {
         "profile_url":profile_url,
         "cover_url":cover_url,
         "has-audio":false,// false by default 
-        "old_user_id": users[user].user_id,// do the same for all the remaining unaffected data
-        "old_number_of_sales":users[user].number_of_sales,
-        "old_facebook_id":users[user].facebook_id,
-        "old_google_id":users[user].google_id,
-        "old_twitter_id":users[user].twitter_id,
-        "old_slug":users[user].slug,
-        "old_about_me":users[user].about_me,
-        "old_coords_lat":users[user].coords_lat,
-        "old_coords_lang":users[user].coords.lang,
-        "old_facebook_url":users[user].facebook_url,
-        "old_twitter_url":users[user].twitter_url,
-        "old_instagram_url":users[user].instagram_url,
-        "old_pininterest_url":users[user].pinterest_url,
-        "old__linkedin_url":users[user].linkedin_url,
-        "old_youtube_url":users[user].youtube_url,
-        "old-status":users[user].user_status,
-        "old-city_id":users[user].city_id,
-        "old-country-id":users[user].country_id,
-        "old-state-id":users[user].state_id
+        "old_data":{
+        "user_id": users[user].user_id,
+         "email-status":users[user].email_status,
+         "first_name":users[user].first_name,
+         "last_name":users[user].last_name,
+         "email":users[user].email,
+         "password":users[user].password,
+         "phone_number":users[user].phone_number,
+         "address":users[user].address,
+         "role":users[user].role,
+         "avatar":users[user].avatar,
+         "picture":users[user].picture,
+         "banned":users[user].banned,
+         "show_email":users[user].show_email,
+         "show_phone":users[user].show_phone,
+         "show_location":users[user].show_location,
+         "last-seen":users[user].last_seen,
+         "created-at":users[user].created_at,
+         "is_old_user":users[user].is_old_user,
+        "number_of_sales":users[user].number_of_sales,
+        "facebook_id":users[user].facebook_id,
+        "send-email-new-message":users[user].send_email_new_message,
+        "google_id":users[user].google_id,
+        "twitter_id":users[user].twitter_id,
+        "slug":users[user].slug,
+        "about_me":users[user].about_me,
+        "coords_lat":users[user].coords_lat,
+        "coords_lang":users[user].coords_lng,
+        "facebook_url":users[user].facebook_url,
+        "twitter_url":users[user].twitter_url,
+        "instagram_url":users[user].instagram_url,
+        "pininterest_url":users[user].pinterest_url,
+        "linkedin_url":users[user].linkedin_url,
+        "youtube_url":users[user].youtube_url,
+        "user_status":users[user].user_status,
+        "city_id":users[user].city_id,
+        "country-id":users[user].country_id,
+        "state-id":users[user].state_id
+        }
     }
     selectedUserVal.push(newUser);
     // console.log(newUser);
@@ -100,23 +118,7 @@ for(let user in users) {
 
 
 
-let selectedMarketVal=[];
 
-for ( let market in users){
-    let marketUsers={
-        followers:"[]",
-        following:"[]",
-        likes:"[]",
-        notes:"[]",
-        note:0,
-        plan:"basic",
-        status:"normal"
-
-    }
-
-    selectedMarketVal.push(marketUsers);
-
-}
 let selectedfilesVal=[];
 
 
@@ -143,28 +145,35 @@ for (let ishop in shops){
 
 let newShop ={
     name:shops[ishop].name,
+    created:"", 
     description:shops[ishop].description,
     address:shops[ishop].address,
     owner:shops[ishop].user_id,
     admin:"",
     cat:shops[ishop].cat,
+    shop:shops[ishop].shop_id,
     ccode:"224",
+    slug:shops[ishop].slug,
     phone:shops[ishop].phone_number,
     email:shops[ishop].email,
+    status:"normal",
     location:"",
     // function needed to get location from longitutes and latitudes
     note:0,
     notes:{},
-    "has-logo":shops[ishop].logo,
-    "has-cover":false,
-    "has-audio":false,
-    "old-id":shops[ishop].user.id,
-    "old-slug":shops[ishop].slug,
-    "logo-key":"",
-    "old-shop-status":shops[ishop].shop_status,
-    "old-coords_lat":shops[ishop].coords_lat,
-    "old-coords-lng":shops[ishop].coords_lng
-
+    "old-data":{
+        "has-logo":shops[ishop].logo,
+        "has-cover":false,
+        "has-audio":false,
+        "old-id":shops[ishop].user_id,
+        "old-slug":shops[ishop].slug,
+        "logo-key":"",
+        "old-shop-status":shops[ishop].shop_status,
+        "old-coords_lat":shops[ishop].coords_lat,
+        "old-coords-lng":shops[ishop].coords_lng
+    
+    }
+    
 
 
 
@@ -176,7 +185,7 @@ selectedshopsVal.push(newShop);
 
 
 let selectedcatsVal=[];
-
+/*
 for ( let cat in cats){
 
 let newCat ={
@@ -196,6 +205,7 @@ selectedcatsVal.push(newCat);
 
 }
 
+*/
 
 
 // function to get address from longitude and latitude coord
@@ -209,35 +219,82 @@ function validateLatLng(lat, lng) {
 
   //Convert lat/long to gps coordinates for location 
 
+let selectedcountryVal=[]
+  for (let country in countries){
+      let newCountry={
+
+        name:countries[country].country_name
+      }
+
+      selectedcountryVal.push(newCountry)
+  }
+
+let selectedstatesVal=[]
+  for (let state in states){
+      let newState={
+          state:states[state].state,
+
+
+      }
+
+      selectedstateVal.push(newState)
+  }
+
+
+  let selectedcitiesVal =[];
+
+let selectedcitiesVal=[]
+  for (let city in cities){
+      let newCity={
+          city:cities[city].city_name,
+
+
+      }
+
+      selectedcitiesVal.push(newCity)
+  }
+
 
 let selectedproductVal =[];
 
-for (product in products){
+for (let product in products){
+   let  dateTime = new Date();
     let newProducts={
-        title:products[product].title,
+        title:products[product].name,
+        created:new Date().getTime(),
+        owner:products[product].user_id,
+        address:"null",
         shop:products[product].shop_id,
         description:products[product].description,
         price:products[product].price,
         negotiable:products[product].negociable,
         cat:products[product].category,
+        unused:"null",
         plan:"basic",
-        "last-touch":"null",
-        location:"",
+        "last-touch":dateTime,
+        location:products[product].coords_name,
+        comments:"",
+        images:"",
+        "main-img":"",
+        likes:"",
         // function to get location from lng and ltd coordinates 
          audios:"",
-         "old-posted-date":products[product].posted_on,
-         "old-status":products[product].products_status,
-         "old-subcategory":products[product].sub_category,
-         "old-slug":products[product].slug,
-         "old-voice-signature":products[product].use_shop_voice_signature,
-         "old-coords-lat":products[product].coords_lat,
-         "old-coords-lng":products[product].coords_lng,
-         "old-subcat":products[product].sub_category,
-         "old-person-of-contact":products[product].person_of_contact_id,
-         "old-city":products[product].city_id,
-         "old-state-id":products[product].state_id,
-         "old-user-id":products[product].user_id
-
+         "old-data":{
+            "old-posted-date":products[product].posted_on,
+            "old-status":products[product].products_status,
+            "old-subcategory":products[product].sub_category,
+            "old-slug":products[product].slug,
+            "old-voice-signature":products[product].use_shop_voice_signature,
+            "old-coords-lat":products[product].coords_lat,
+            "old-coords-lng":products[product].coords_lng,
+            "old-subcat":products[product].sub_category,
+            "old-person-of-contact":products[product].person_of_contact_id,
+            "old-city":products[product].city_id,
+            "old-state-id":products[product].state_id,
+            "old-user-id":products[product].user_id
+   
+         }
+         
         
 
 
@@ -247,6 +304,14 @@ for (product in products){
 
 }
 
+
+
+
+const thinky = require('thinky')({
+    host:  'localhost',
+    port:  28015,
+    db:    'makitidb'
+});
 
 var r = thinky.r;
 var Users = thinky.createModel('users', {
@@ -279,7 +344,7 @@ var Shop =thinky.createModel('Shop',{
      key:String
     },
     cat:Number,
-    followers:List,
+    followers:Object,
     note:Number,
     notes:Number,
     notes:Object,
@@ -287,7 +352,7 @@ var Shop =thinky.createModel('Shop',{
     profile:String,
     "cover-key":String,
     "has-logo":Boolean,
-    "notes-hist":List,
+    "notes-hist":Object,
     "has-cover":Boolean,
     "has-audio":Boolean,
     "logo-key":String,
@@ -327,14 +392,31 @@ var Products = thinky.createModel('Products',{
 
 })
 
-var images = thinky.createModel('Images',{
+var imag = thinky.createModel('Imag',{
 images_storage_id:Number,
-requirements:Custom,
+requirements:String,
 resolution:Number,
 
 
 })
 
+var cities =thinky.createModel('cities',{
+    city_id:Number,
+    city_name:String,
+
+})
+
+var states =thinky.createModel('states',{
+    state_id:Number,
+    state:String,
+
+
+})
+
+var counrtry =think.createModel('countries',{
+    country_id:Number,
+    country_name:String
+})
 
 var category =thinky.createModel('cats',{
     name:String,
@@ -357,21 +439,9 @@ type:[{
 
 }],
 mime:String,
-requirements:[{
-    "max-size": 15728640,
-    "min-size": 0,
-    // The following sub fields are only set for images
-    "max-height": 4320,
-    "min-height": 512,
-    "max-width": 7680,
-    "min-width": 512,
-    "resolution": 512 / 1080,
-    
-
-
-}]
+requirements:String
 });
-
+/*
 var marketUsers =thinky.createModel('marketUsers',{
 
     //audio 
@@ -383,14 +453,14 @@ note:Number.default(0),
 plan:String.default("basic"),
 status:String.default("normal")
 })
-
-
+*/
+/*
 products.belongsTo(users,"users","iduser","id")
 files.belongsTo(users, "users" ,"iduser", "id");
 marketUsers.belongsTo(users, "users" ,"iduser", "id")
 images.belongsTo(products,"products","productid","id")
 shops.belongsTo(users,"users","iduser","id")
-
+*/
 
 
 r.connect( {host: 'localhost', port:  28015 }, function(err, conn) {
@@ -401,34 +471,33 @@ r.connect( {host: 'localhost', port:  28015 }, function(err, conn) {
 r.db('makitidb').table('users').
     insert(selectedUserVal).run(conn, function(err, result) {
         if (err) throw err;
-        console.log(JSON.stringify(result, null, 2));
+        
     });
-    r.db('makitidb').table('shops').
+    r.db('makitidb').table('Shop').
     insert(selectedshopsVal).run(conn, function(err, result) {
         if (err) throw err;
-        console.log(JSON.stringify(result, null, 2));
+        
     }); 
-    r.db('makitidb').table('products').
+    r.db('makitidb').table('Products').
     insert(selectedproductVal).run(conn, function(err, result) {
         if (err) throw err;
-        console.log(JSON.stringify(result, null, 2));
+        
     }); 
 r.db('makitidb').table('cats').
     insert(selectedcatsVal).run(conn, function(err, result) {
         if (err) throw err;
-        console.log(JSON.stringify(result, null, 2));
+        
     }); 
 
 
     r.db('makiti-market').table('users').
     insert(selectedMarketVal).run(conn, function(err, result) {
         if (err) throw err;
-        console.log(JSON.stringify(result, null, 2));
+        
     });
     r.db('flystore').table('files').
     insert(selectedfilesVal).run(conn, function(err, result) {
         if (err) throw err;
-        console.log(JSON.stringify(result, null, 2));
     });
 });
 
