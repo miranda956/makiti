@@ -36,8 +36,8 @@
     "value": "int",
   },
   "password": {
-    "description": "Bcrypt hashed password"
-    "value": "string",
+    "description": "Bcrypt hashed password",
+    "value": "string"
   },
   "logtype": {
     "description": "In our case, just put 'custom'"

@@ -39,8 +39,13 @@ let new_user_profile = false,
   pending_vcode="",
   pending_email="",
   email_vcode,
-  fid,
+  Fid,
+  created,
+  ttest = /^6[1256]\d{7}$/,
+
   ;
+Fid =users[user].facebook_id && users[user].google_id
+
 
 
     if (users[user].avatar) {
@@ -59,7 +64,12 @@ let new_user_profile = false,
     } else {
         new_user_cover = false;
     }
-
+    if (users[user].created_at){
+        created=users[user].created_at
+    }
+    else{
+        created=new Date().getTime(),
+    }
     
     let newUser = {
         email: users[user].email,
@@ -68,10 +78,17 @@ let new_user_profile = false,
         first_name:users[user].last_name,
         last_name:users[user].last_name,
         address:users[user].address,
+        slug:users[user].slug,
+        created:created,
+        fid:Fid,
         ccode:'224',
         logtype:"custom",
-
-        "pending-ccode":"null",//need some explanations from TIM
+        location:"",
+        "last-modified":"",
+        country:users[user].country,
+        state=users[user].state,
+        city:users[user].city,
+        "pending-ccode":"",
         "pending-phone":"null",
         "phone-vcode":"null",
         "pending-email":"null",
@@ -80,7 +97,6 @@ let new_user_profile = false,
         "has-cover":new_user_cover,
         "profile_url":profile_url,
         "cover_url":cover_url,
-        "has-audio":false,// false by default
         "old_data":{
         "user_id": users[user].user_id,
          "email-status":users[user].email_status,
