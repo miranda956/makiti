@@ -30,10 +30,18 @@ let selectedUserVal = [];
 
 for(let user in users) {
 
-    let new_user_profile = false;
-    let new_user_cover = false;
-    let profile_url =""
-    let cover_url=""
+let new_user_profile = false,
+  new_user_cover = false,
+  profile_url ="",
+  cover_url="",
+  pending_ccode="",
+  pending_phone="",
+  pending_vcode="",
+  pending_email="",
+  email_vcode,
+  fid,
+  ;
+
 
     if (users[user].avatar) {
         new_user_profile = true;
@@ -52,7 +60,7 @@ for(let user in users) {
         new_user_cover = false;
     }
 
-
+    
     let newUser = {
         email: users[user].email,
         phone: users[user].phone_number,
@@ -62,6 +70,7 @@ for(let user in users) {
         address:users[user].address,
         ccode:'224',
         logtype:"custom",
+
         "pending-ccode":"null",//need some explanations from TIM
         "pending-phone":"null",
         "phone-vcode":"null",
@@ -143,6 +152,29 @@ let selectedshopsVal=[];
 
 for (let ishop in shops){
 
+let hasCover =false,
+ hasLogo=false,
+ profile="",
+ state="",
+ city="",
+ cover="",
+;
+if (shops[ishop].cover_picture) {
+    hasCover = true;
+    profile =shops[ishop].cover_picture
+
+}  else {
+    hasCover = false;
+}
+
+if (shops[ishop].logo) {
+    hasLogo = true;
+} else {
+    hasLogo = false;
+}
+
+
+
     let options = {
         provider: 'openstreetmap'
       };
@@ -175,20 +207,20 @@ let newShop ={
     status:"normal",
     location:"null",
     audios:"",
-    "has-logo":"",
-    profile:"",
-    "has-cover":"",
-    cover:"",
-    "cover-key":"",
+    "has-logo":hasLogo,
+    profile: profile ,
+    "has-cover":hasCover,
+    cover:shops[ishop].cover_picture,
+    "cover-key":rs.generate({length: 32, charset: "alphanumeric"}),
     note:0,
     notes:{},
     followers:"",
     following:"",
     plan:"basic",
-    "shop-number":"",
+    "shop-number":shops[ishop].shop_id,
      city:"",
      state:"",
-     country:""    
+     country:"Guinée",   
     "old-data":{
         "shop_id":shops[ishop].shop_id,
         "name":shops[ishop].name,
@@ -316,7 +348,7 @@ for (let product in products){
         price:products[product].price,
         negotiable:products[product].negociable,
         cat:products[product].category,
-        unused:"null",
+        unused:true,
         plan:"basic",
         "last-touch":dateTime,
         location:products[product].coords_name,
